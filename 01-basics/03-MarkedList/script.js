@@ -26,7 +26,6 @@ const emails = [
   'Khalil@emile.co.uk',
   'Sophia@arianna.co.uk',
   'Jeffery@juwan.us',
-  'Isaias_Kuhic@jarrett.net',
 ];
 
 const app = createApp({
