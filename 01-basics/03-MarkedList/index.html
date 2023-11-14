@@ -17,7 +17,7 @@
           <input type="search" v-model="search" />
         </div>
         <ul>
-          <li v-for="email in emails" :class="{'marked': search != '' && markedEmails.includes(email)}">
+          <li v-for="email in emails" :class="{'marked': search != '' && email.toLowerCase().indexOf(search.toLowerCase()) >= 0}">
             {{ email }}
           </li>
         </ul>

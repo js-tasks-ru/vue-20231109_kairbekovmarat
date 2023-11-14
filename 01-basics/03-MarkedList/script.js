@@ -35,12 +35,6 @@ const app = createApp({
       search: '',
     };
   },
-
-  computed: {
-    markedEmails() {
-      return this.emails.filter(email => email.toLowerCase().indexOf(this.search.toLowerCase()) != -1);
-    }
-  }
 });
 
 app.mount('#app');
