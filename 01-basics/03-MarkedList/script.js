@@ -35,6 +35,17 @@ const app = createApp({
       search: '',
     };
   },
+
+  computed: {
+    markeredEmails() {
+      return this.emails.map(email => {
+        return {
+          address: email,
+          markered: this.search != '' && email.toLowerCase().indexOf(this.search.toLowerCase()) >= 0,
+        };
+      });
+    }
+  }
 });
 
 app.mount('#app');
