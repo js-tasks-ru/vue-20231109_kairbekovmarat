@@ -36,13 +36,10 @@ export default defineComponent({
 
         const meetupPromise = fetchMeetupById(id);
 
-        meetupPromise.then(meetup => this.meetup = meetup);
-        meetupPromise.catch(() => {
-          this.meetup = null;
-          this.error = true;
-        });
-
-        meetupPromise.finally(() => this.loading = false);
+        meetupPromise.then(
+          (meetup) => (this.meetup = meetup),
+          (error) => (this.error = error.message)
+        ).finally(() => this.loading = false);
       },
 
       immediate: true,
@@ -53,12 +50,12 @@ export default defineComponent({
     <div class="page-meetup">
       <MeetupView :meetup="meetup" v-if="!loading && !error" />
 
-      <UiContainer>
-        <UiAlert v-if="loading">Загрузка...</UiAlert>
+      <UiContainer v-if="loading">
+        <UiAlert>Загрузка...</UiAlert>
       </UiContainer>
 
-      <UiContainer>
-        <UiAlert v-if="error">error</UiAlert>
+      <UiContainer v-if="error">
+        <UiAlert>{{ error }}</UiAlert>
       </UiContainer>
     </div>`,
 });
