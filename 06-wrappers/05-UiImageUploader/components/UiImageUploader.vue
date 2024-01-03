@@ -3,12 +3,12 @@
     <label class="image-uploader__preview"
       :class="{ 'image-uploader__preview-loading': loading }"
       :style="{ '--bg-url': hasPreview ? `url('${inputPreview}')` : '' }"
-      @click="labelClick">
+    >
 
       <span class="image-uploader__text">
         {{ uploaderText }}
       </span>
-      <input ref="uploader-input" v-bind="$attrs" type="file" accept="image/*" class="image-uploader__input" @change="fileUpload" />
+      <input ref="uploader-input" v-bind="$attrs" type="file" accept="image/*" class="image-uploader__input" @change="fileUpload" @click="labelClick" />
     </label>
   </div>
 </template>
@@ -37,7 +37,7 @@ export default {
       },
 
       immediate: true,
-    }
+    },
   },
 
   computed: {
@@ -58,16 +58,20 @@ export default {
 
   methods: {
     labelClick(event) {
-      if(this.hasPreview) {
+      if(this.hasPreview || this.loading) {
         event.preventDefault();
-        this.inputPreview = null;
-        this.$refs['uploader-input'].value = '';
+      }
+
+      if(this.hasPreview && !this.loading) {
         this.$emit('remove');
+        this.inputPreview = null;
+        this.clearFileInput();
       }
     },
 
     async fileUpload(event) {
       const file = event.target.files[0];
+      this.inputPreview = URL.createObjectURL(file);
       this.$emit('select', file);
 
       if(typeof this.uploader != 'function') { // Проверяем, передали ли загрузчик
@@ -78,15 +82,18 @@ export default {
 
       try {
         await this.uploader(file)
-          .then(response => {
-            this.inputPreview = URL.createObjectURL(file);
-            this.$emit('upload', response);
-          });
+          .then(response => this.$emit('upload', response));
       } catch(error) {
+        this.clearFileInput();
+        this.inputPreview = null;
         this.$emit('error', error);
       } finally {
         this.loading = false;
       }
+    },
+
+    clearFileInput() {
+      this.$refs['uploader-input'].value = '';
     }
   },
 };
