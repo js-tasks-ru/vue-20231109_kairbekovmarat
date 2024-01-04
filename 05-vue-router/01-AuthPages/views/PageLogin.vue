@@ -36,7 +36,7 @@ export default {
 
   methods: {
     handleSubmit() {
-      this.$router.push({ path: this.$route.query.from });
+      this.$router.push({ path: this.$route.query.from ?? '/' });
     },
   },
 };
