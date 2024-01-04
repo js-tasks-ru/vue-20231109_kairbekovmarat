@@ -1,5 +1,5 @@
 <template>
-  <div class="toast" :class="className" v-if="visible">
+  <div class="toast" :class="className">
     <!-- <span class="toast__close" v-if="manualClose">&times;</span> -->
 
     <UiIcon class="toast__icon" :icon="iconName" />
@@ -11,13 +11,7 @@
   import UiIcon from './UiIcon.vue';
 
   export default {
-    name: 'Toast',
-
-    data() {
-      return {
-        visible: true,
-      }
-    },
+    name: 'TheToast',
 
     props: {
       message: {
@@ -42,6 +36,8 @@
       }
     },
 
+    emits: ['remove'],
+
     computed: {
       iconName() {
         switch(this.type) {
@@ -65,7 +61,7 @@
     },
 
     mounted() {
-      setTimeout(() => this.visible = false, this.timeout);
+      setTimeout(() => this.$emit('remove'), this.timeout);
     },
 
     components: { UiIcon },

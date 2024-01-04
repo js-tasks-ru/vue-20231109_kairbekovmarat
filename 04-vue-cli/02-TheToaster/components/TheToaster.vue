@@ -1,13 +1,15 @@
 <template>
   <div class="toasts">
-    <Toast v-for="toast in toasts"
+    <TheToast v-for="(toast, index) in toasts"
       :message="toast.message"
-      :type="toast.type" />
+      :type="toast.type"
+      :key="toast.id"
+      @remove="removeToast(index)" />
   </div>
 </template>
 
 <script>
-import Toast from './Toast.vue';
+import TheToast from './TheToast.vue';
 
 export default {
   name: 'TheToaster',
@@ -21,6 +23,7 @@ export default {
   methods: {
     success(text) {
       this.toasts.push({
+        id: Math.random().toString(36),
         message: text,
         type: 'success',
       });
@@ -28,13 +31,18 @@ export default {
 
     error(text) {
       this.toasts.push({
+        id: Math.random().toString(36),
         message: text,
         type: 'error',
       });
+    },
+
+    removeToast(index) {
+      this.toasts.splice(index, 1);
     }
   },
 
-  components: { Toast }
+  components: { TheToast }
 };
 </script>
 
