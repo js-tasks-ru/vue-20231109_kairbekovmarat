@@ -30,7 +30,7 @@ export default {
     },
 
     step: {
-      type: Number,
+      type: String,
     },
   },
 
@@ -58,10 +58,6 @@ export default {
 
     modelValueProxy: {
       get() {
-        if(!this.modelValue) {
-          return '';
-        }
-
         switch(this.type) {
           case 'date':
             return this.formattedDate;
@@ -72,25 +68,7 @@ export default {
         }
       },
 
-      set(value) {
-        // if(value) {
-        //   switch(this.type) {
-        //     case 'date':
-        //       value += `T${this.formattedTime}`;
-        //       break;
-
-        //     case 'time':
-        //       value = `${this.formattedDate}T${value}`;
-        //       break;
-        //   }
-
-        //   value = value.replaceAll('T', '-').replaceAll(':', '-');
-        //   value = value.split('-');
-        //   value = Date.UTC(...value);
-        // } else {
-        //   value = 0;
-        // }
-
+      set() {
         this.$emit('update:modelValue', this.$refs['input-date'].$refs['input'].valueAsNumber);
       }
     },
