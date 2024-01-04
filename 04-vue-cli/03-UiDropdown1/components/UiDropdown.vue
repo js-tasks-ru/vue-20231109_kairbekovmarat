@@ -1,18 +1,24 @@
 <template>
-  <div class="dropdown dropdown_opened">
-    <button type="button" class="dropdown__toggle dropdown__toggle_icon">
-      <UiIcon icon="tv" class="dropdown__icon" />
-      <span>Title</span>
+  <div class="dropdown" :class="{'dropdown_opened': opened}">
+    <button type="button"
+      class="dropdown__toggle"
+      :class="{'dropdown__toggle_icon': hasIcon}"
+      @click="opened = !opened">
+
+      <UiIcon :icon="currentValue.icon" class="dropdown__icon" v-if="currentValue.icon" />
+      <span>{{ currentValue.text }}</span>
     </button>
 
-    <div class="dropdown__menu" role="listbox">
-      <button class="dropdown__item dropdown__item_icon" role="option" type="button">
-        <UiIcon icon="tv" class="dropdown__icon" />
-        Option 1
-      </button>
-      <button class="dropdown__item dropdown__item_icon" role="option" type="button">
-        <UiIcon icon="tv" class="dropdown__icon" />
-        Option 2
+    <div class="dropdown__menu" role="listbox" v-show="opened">
+      <button v-for="option in options"
+        class="dropdown__item"
+        :class="{'dropdown__item_icon': hasIcon}"
+        role="option"
+        type="button"
+        @click="selectValue(option.value)">
+
+        <UiIcon :icon="option.icon" class="dropdown__icon" v-if="option.icon" />
+        {{ option.text }}
       </button>
     </div>
   </div>
@@ -23,6 +29,48 @@ import UiIcon from './UiIcon.vue';
 
 export default {
   name: 'UiDropdown',
+
+  data() {
+    return {
+      opened: false,
+    }
+  },
+
+  props: {
+    title: {
+      type: String,
+      required: true,
+    },
+
+    options: {
+      type: Array,
+      required: true,
+    },
+
+    modelValue: {
+      type: String,
+    },
+  },
+
+  emits: ['update:modelValue'],
+
+  computed: {
+    currentValue() {
+      const currentOption = this.options.find(option => option.value === this.modelValue);
+      return currentOption ?? { text: this.title };
+    },
+
+    hasIcon() {
+      return this.options.find(option => option.icon !== undefined) !== undefined;
+    }
+  },
+
+  methods: {
+    selectValue(value) {
+      this.$emit('update:modelValue', value);
+      this.opened = false;
+    }
+  },
 
   components: { UiIcon },
 };

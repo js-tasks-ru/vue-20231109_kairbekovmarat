@@ -1,8 +1,14 @@
 <template>
   <div class="image-uploader">
-    <label class="image-uploader__preview image-uploader__preview-loading" style="--bg-url: url('/link.jpeg')">
-      <span class="image-uploader__text">Загрузить изображение</span>
-      <input type="file" accept="image/*" class="image-uploader__input" />
+    <label class="image-uploader__preview"
+      :class="{ 'image-uploader__preview-loading': loading }"
+      :style="{ '--bg-url': hasPreview ? `url('${inputPreview}')` : '' }"
+    >
+
+      <span class="image-uploader__text">
+        {{ uploaderText }}
+      </span>
+      <input ref="uploader-input" v-bind="$attrs" type="file" accept="image/*" class="image-uploader__input" @change="fileUpload" @click="labelClick" />
     </label>
   </div>
 </template>
@@ -10,6 +16,86 @@
 <script>
 export default {
   name: 'UiImageUploader',
+  inheritAttrs: false,
+  data() {
+    return {
+      loading: false,
+      inputPreview: null,
+    };
+  },
+
+  emits: ['select', 'upload', 'error', 'remove'],
+  props: {
+    preview: String,
+    uploader: Function,
+  },
+
+  watch: {
+    preview: {
+      handler(value) {
+        this.inputPreview = value;
+      },
+
+      immediate: true,
+    },
+  },
+
+  computed: {
+    hasPreview() {
+      return !!this.inputPreview;
+    },
+
+    uploaderText() {
+      if(this.loading) {
+        return 'Загрузка...';
+      } else if(this.hasPreview) {
+        return 'Удалить изображение';
+      }
+
+      return 'Загрузить изображение';
+    }
+  },
+
+  methods: {
+    labelClick(event) {
+      if(this.hasPreview || this.loading) {
+        event.preventDefault();
+      }
+
+      if(this.hasPreview && !this.loading) {
+        this.$emit('remove');
+        this.inputPreview = null;
+        this.clearFileInput();
+      }
+    },
+
+    async fileUpload(event) {
+      const file = event.target.files[0];
+      this.inputPreview = URL.createObjectURL(file);
+      this.$emit('select', file);
+
+      if(typeof this.uploader != 'function') { // Проверяем, передали ли загрузчик
+        return;
+      }
+
+      this.loading = true;
+
+      try {
+        await this.uploader(file)
+          .then(response => this.$emit('upload', response));
+      } catch(error) {
+        this.clearFileInput();
+        this.inputPreview = null;
+        this.$emit('error', error);
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    clearFileInput() {
+      this.$refs['uploader-input'].value = '';
+    }
+  },
 };
 </script>
 

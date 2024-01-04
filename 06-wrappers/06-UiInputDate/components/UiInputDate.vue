@@ -1,7 +1,7 @@
 <template>
-  <UiInput :model-value="value" :type="type" @input="handleInput">
-    <template v-for="slot in Object.keys($slots)" #[slot]>
-      <slot :name="slot" />
+  <UiInput ref="input-date" :type="type" :step="step" v-model="modelValueProxy">
+    <template v-for="slotName of Object.keys($slots)" #[slotName]>
+      <slot :name="slotName" />
     </template>
   </UiInput>
 </template>
@@ -11,52 +11,66 @@ import UiInput from './UiInput.vue';
 
 export default {
   name: 'UiInputDate',
-
-  components: { UiInput },
-
+  components: {
+    UiInput
+  },
+  
+  emits: ['update:modelValue'],
   props: {
-    modelValue: Number,
-
     type: {
       type: String,
       default: 'date',
-      validator: (type) => ['date', 'datetime-local', 'time'].includes(type),
+      validator(value) {
+        return ['date', 'time', 'datetime-local'].includes(value);
+      }
+    },
+
+    modelValue: {
+      type: Number,
     },
 
     step: {
-      type: [Number],
+      type: String,
     },
   },
-
-  emits: ['update:modelValue'],
 
   computed: {
-    value() {
-      // No value - empty string
-      if (typeof this.modelValue === 'undefined' || this.modelValue === null) {
-        return '';
-      }
+    formattedDate() {
+      const date = new Date(this.modelValue);
+      const year = date.getUTCFullYear();
+      const month = date.getUTCMonth() + 1;
+      const day = date.getUTCDate();
 
-      // YYYY-MM-DDTHH:MM:SS.mssZ
-      const date = new Date(this.modelValue).toISOString();
-
-      if (this.type === 'date') {
-        return date.substring(0, 10); // YYYY-MM-DD
-      } else if (this.type === 'datetime-local') {
-        return date.substring(0, 16); // YYYY-MM-DDTHH:MM
-      } else if (this.type === 'time') {
-        return this.step && this.step % 60 !== 0
-          ? date.substring(11, 19) // HH:MM:SS
-          : date.substring(11, 16); // HH:MM
-      }
-
-      return '';
+      return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
     },
-  },
 
-  methods: {
-    handleInput($event) {
-      this.$emit('update:modelValue', $event.target.value !== '' ? $event.target.valueAsNumber : undefined);
+    formattedTime() {
+      const date = new Date(this.modelValue);
+      const hours = date.getUTCHours().toString().padStart(2, '0');
+      const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+
+      return `${hours}:${minutes}`;
+    },
+
+    formattedDateTime() {
+      return `${this.formattedDate}T${this.formattedTime}`;
+    },
+
+    modelValueProxy: {
+      get() {
+        switch(this.type) {
+          case 'date':
+            return this.formattedDate;
+          case 'time':
+            return this.formattedTime;
+          case 'datetime-local':
+            return this.formattedDateTime;
+        }
+      },
+
+      set() {
+        this.$emit('update:modelValue', this.$refs['input-date'].$refs['input'].valueAsNumber);
+      }
     },
   },
 };

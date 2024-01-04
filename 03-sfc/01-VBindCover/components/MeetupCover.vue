@@ -13,16 +13,7 @@ export default {
 
   computed: {
     backgroundImage() {
-      if(this.image) {
-        const bgImage = [
-          'linear-gradient(0deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4))',
-          `url('${this.image}')`,
-        ];
-
-        return bgImage.join(',');
-      }
-
-      return 'linear-gradient(0deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), var(--default-cover)';
+      return this.image ? `url('${this.image}')` : 'var(--default-cover)';
     }
   },
 };
@@ -32,7 +23,7 @@ export default {
 .meetup-cover {
   background-size: cover;
   background-position: center;
-  background-image: v-bind(backgroundImage);
+  background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), v-bind(backgroundImage);
   display: flex;
   flex-direction: column;
   align-items: center;
