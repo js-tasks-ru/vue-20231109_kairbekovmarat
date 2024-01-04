@@ -38,7 +38,6 @@ export default {
   data() {
     return {
       date: new Date(),
-      groupedMeetups: {},
     };
   },
 
@@ -49,30 +48,24 @@ export default {
     },
   },
 
-  watch: {
-    meetups: {
-      handler(value) {
-        const groupedMeetups = {};
-
-        this.meetups.forEach(meetup => {
-          const meetupDate = new Date(meetup.date)
-          const meetupDateKey = `${meetupDate.getFullYear()}-${meetupDate.getMonth()}-${meetupDate.getDate()}`;
-
-          if(groupedMeetups[meetupDateKey] === undefined) {
-            groupedMeetups[meetupDateKey] = [];
-          }
-
-          groupedMeetups[meetupDateKey].push(meetup);
-        });
-
-        this.groupedMeetups = groupedMeetups;
-      },
-
-      immediate: true,
-    }
-  },
-
   computed: {
+    groupedMeetups() {
+      const groupedMeetups = {};
+
+      this.meetups.forEach(meetup => {
+        const meetupDate = new Date(meetup.date)
+        const meetupDateKey = `${meetupDate.getFullYear()}-${meetupDate.getMonth()}-${meetupDate.getDate()}`;
+
+        if(groupedMeetups[meetupDateKey] === undefined) {
+          groupedMeetups[meetupDateKey] = [];
+        }
+
+        groupedMeetups[meetupDateKey].push(meetup);
+      });
+
+      return groupedMeetups;
+    },
+
     currentMonth() {
       return this.date.toLocaleDateString(navigator.language, {
         year: "numeric",
